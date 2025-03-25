@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Cell Connector</title>
+    <style>
+        table {
+            width: 90%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            margin: auto;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .selected {
+            background-color: rgb(199, 199, 199);
+        }
+        .table-group {
+            /* display:flex;
+            gap: 10px; */
+        }
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            padding: 20px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            width: 90%;
+            margin: auto;
+            margin-bottom: 40px;
+            margin-top: 40px;
+            background: lightgrey;
+        }
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        label {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        input, select {
+            border: none;
+            border-bottom: 1px solid black;
+            padding: 3px;
+            font-size: 14px;
+            outline: none;
+            background: transparent;
+            width: 50px;
+            text-align: center;
+        }
+        .wide-input {
+            width: 100%;
+        }
+        .color-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: black;
+        }
+        .BLUE { background-color: blue; }
+        .ORANGE { background-color: orange; }
+        .GREEN { background-color: green; }
+        .BROWN { background-color: brown; }
+        .SLATE { background-color: gray; }
+        .WHITE { background-color: white; border: 1px solid black; }
+        .RED { background-color: red; }
+        .BLACK { background-color: black; }
+        .YELLOW { background-color: yellow; }
+        .VIOLET { background-color: violet; }
+        .ROSE { background-color: pink; }
+        .AQUA { background-color: aqua; }
+    </style>
+</head>
+<body>
+    <img src = "Screenshot_2.jpg" style = "width: 100%;">
+    <div class="container">
+        <div class="row">
+            <label>CABLE # :</label>
+            <input type="text" value="1">
+            
+            <label>CABLE COLOR ID :</label>
+            <input type="text" value="1">
+            
+            <label>TOTAL FIBER COUNT :</label>
+            <input type="text" value="24">
+            
+            <label>CABLE FOOTAGE :</label>
+            <input type="text" value="1">
+        </div>
+    
+        <div class="row">
+            <label>CABLE TYPE :</label>
+            <input type="text" class="" style = "width: 30%;">
+            
+            <label>DIRECTION :</label>
+            <select style = "width: 117px;">
+                <option>OUTPUT</option>
+                <option>INPUT</option>
+            </select>
+            
+            <label>USE :</label>
+            <select style = "width: 122px;">
+                <option>TRUNK</option>
+                <option>DISTRIBUTION</option>
+            </select>
+        </div>
+    
+        <div class="row">
+            <label>NOTES :</label>
+            <input type="text" class="wide-input">
+        </div>
+    </div>
+
+    <div class="table-group">
+
+        <table id="table1">
+            <thead>
+                <tr>
+                    <th>F#</th><th>F-COLOR</th><th>BT #</th>
+                    <th>BT-COLOR</th><th>NOTES</th><th>CONNECTION</th>
+                </tr>
+                <tr><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>3</td><td class="color-box">GREEN<div class="underline GREEN"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>4</td><td class="color-box">BROWN<div class="underline BROWN"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>5</td><td class="color-box">SLATE<div class="underline SLATE"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>6</td><td class="color-box">WHITE<div class="underline WHITE"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>7</td><td class="color-box">RED<div class="underline RED"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>8</td><td class="color-box">BLACK<div class="underline BLACK"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>9</td><td class="color-box">YELLOW<div class="underline YELLOW"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>10</td><td class="color-box">VIOLET<div class="underline VIOLET"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>11</td><td class="color-box">ROSE<div class="underline ROSE"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>12</td><td class="color-box">AQUA<div class="underline AQUA"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>13</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>14</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>15</td><td class="color-box">GREEN<div class="underline GREEN"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>16</td><td class="color-box">BROWN<div class="underline BROWN"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>17</td><td class="color-box">SLATE<div class="underline SLATE"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>18</td><td class="color-box">WHITE<div class="underline WHITE"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>19</td><td class="color-box">RED<div class="underline RED"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>20</td><td class="color-box">BLACK<div class="underline BLACK"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>21</td><td class="color-box">YELLOW<div class="underline YELLOW"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>22</td><td class="color-box">VIOLET<div class="underline VIOLET"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>23</td><td class="color-box">ROSE<div class="underline ROSE"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>24</td><td class="color-box">AQUA<div class="underline AQUA"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div class="container">
+            <div class="row">
+                <label>CABLE # :</label>
+                <input type="text" value="1">
+                
+                <label>CABLE COLOR ID :</label>
+                <input type="text" value="1">
+                
+                <label>TOTAL FIBER COUNT :</label>
+                <input type="text" value="24">
+                
+                <label>CABLE FOOTAGE :</label>
+                <input type="text" value="1">
+            </div>
+        
+            <div class="row">
+                <label>CABLE TYPE :</label>
+                <input type="text" class="" style = "width: 30%;">
+                
+                <label>DIRECTION :</label>
+                <select style = "width: 117px;">
+                    <option>OUTPUT</option>
+                    <option>INPUT</option>
+                </select>
+                
+                <label>USE :</label>
+                <select style = "width: 122px;">
+                    <option>TRUNK</option>
+                    <option>DISTRIBUTION</option>
+                </select>
+            </div>
+        
+            <div class="row">
+                <label>NOTES :</label>
+                <input type="text" class="wide-input">
+            </div>
+        </div>
+        <table id="table2">
+            <thead>
+                <tr>
+                    <th>F#</th><th>F-COLOR</th><th>BT #</th>
+                    <th>BT-COLOR</th><th>NOTES</th><th>CONNECTION</th>
+                </tr>
+                <tr><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>3</td><td class="color-box">GREEN<div class="underline GREEN"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>4</td><td class="color-box">BROWN<div class="underline BROWN"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>5</td><td class="color-box">SLATE<div class="underline SLATE"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>6</td><td class="color-box">WHITE<div class="underline WHITE"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>7</td><td class="color-box">RED<div class="underline RED"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>8</td><td class="color-box">BLACK<div class="underline BLACK"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>9</td><td class="color-box">YELLOW<div class="underline YELLOW"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>10</td><td class="color-box">VIOLET<div class="underline VIOLET"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>11</td><td class="color-box">ROSE<div class="underline ROSE"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>12</td><td class="color-box">AQUA<div class="underline AQUA"></div></td><td>1</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>13</td><td class="color-box">BLUE<div class="underline BLUE"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>14</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>15</td><td class="color-box">GREEN<div class="underline GREEN"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>16</td><td class="color-box">BROWN<div class="underline BROWN"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>17</td><td class="color-box">SLATE<div class="underline SLATE"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>18</td><td class="color-box">WHITE<div class="underline WHITE"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>19</td><td class="color-box">RED<div class="underline RED"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>20</td><td class="color-box">BLACK<div class="underline BLACK"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>21</td><td class="color-box">YELLOW<div class="underline YELLOW"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>22</td><td class="color-box">VIOLET<div class="underline VIOLET"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>23</td><td class="color-box">ROSE<div class="underline ROSE"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            <tr><td>24</td><td class="color-box">AQUA<div class="underline AQUA"></div></td><td>2</td><td class="color-box">ORANGE<div class="underline ORANGE"></div></td><td></td><td class="clickable"></td></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+        
+        <script>
+            
+            let table1 = {}, table2 = {};
+
+function createTableRows(tableId) {
+    const table = document.getElementById(tableId).getElementsByTagName('tbody')[0];
+    for (let i = 0; i < 24; i++) {
+        let row = table.insertRow();
+        for (let j = 0; j < 6; j++) {
+            let cell = row.insertCell();
+            if (j !== 5) {
+                cell.textContent = `(${i + 1},${j + 1})`;
+            }
+            if (j === 5) {
+                cell.classList.add('clickable');
+            }
+        }
+    }
+}
+function deleteCellContent(table_id, rowNum, colNum) {
+    var table = document.getElementById(table_id);
+    var cell = table.rows[rowNum].cells[colNum];
+    cell.innerHTML = '';
+}
+let firstSelected = null;
+let secondSelected = null;
+let fiber_per_buffer = 12;
+
+document.querySelectorAll("#table1 .clickable").forEach(cell => {
+    cell.addEventListener("click", function () {
+        if (secondSelected) {
+            this.classList.add("selected");
+            let row1 = this.parentNode.rowIndex;
+            let row2 = secondSelected.parentNode.rowIndex;
+            secondSelected.textContent = `RST23E1C2B${Math.floor(row1 / fiber_per_buffer)+1}F${row1 % fiber_per_buffer}`;
+            if (table2[row2] != null) {
+                delete table1[table2[row2]];  // Delete corresponding row in table2
+                deleteCellContent("table1", table2[row2], 5);
+            }
+            if (table1[row1] != null) {
+                delete table2[row1];  // Delete corresponding row in table1
+                deleteCellContent("table2", table1[row1], 5);
+            }
+            table1[row1] = row2;
+            table2[row2] = row1
+            this.textContent = `RST23E1C1B${Math.floor(row2 / fiber_per_buffer)+1}F${row2 % fiber_per_buffer}`;
+            secondSelected = null;
+            // stopDrawing(this)
+        } else {
+            document.querySelectorAll(".selected").forEach(c => c.classList.remove("selected"));
+            this.classList.add("selected");
+            firstSelected = this;
+            // startDrawing(this)
+        }
+    });
+});
+
+document.querySelectorAll("#table2 .clickable").forEach(cell => {
+    cell.addEventListener("click", function () {
+        if (firstSelected) {
+            this.classList.add("selected");
+            let row1 = firstSelected.parentNode.rowIndex;
+            let row2 = this.parentNode.rowIndex;
+            firstSelected.textContent = `RST23E1C2B${Math.floor(row2 / fiber_per_buffer)+1}F${row2 % fiber_per_buffer}`;
+            if (table1[row1] != null) {
+                delete table2[table1[row1]];  // Delete corresponding row in table2
+                deleteCellContent("table2", table1[row1], 5);
+            }
+            if (table2[row2] != null) {
+                delete table1[row2];  // Delete corresponding row in table1
+                deleteCellContent("table1", table2[row2], 5);
+            }
+            table1[row1] = row2;
+            table2[row2] = row1;
+            this.textContent = `RST23E1C1B${Math.floor(row1 / fiber_per_buffer)+1}F${row1 % fiber_per_buffer}`;
+            firstSelected = null;
+            // stopDrawing(this);
+        } else {
+            document.querySelectorAll(".selected").forEach(c => c.classList.remove("selected"));
+            this.classList.add("selected");
+            secondSelected = this;
+            // startDrawing(this);
+        }
+    });
+});
+
+    </script>
+</body>
+</html>

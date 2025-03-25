@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Fiber Cable Form</title>
+    <link rel="stylesheet" href="../src/css/sheet.css">
+    <link href="../src/css/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Custom scrollbar styles */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: hsla(0, 0%, 0%, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: hsla(0, 0%, 0%, 0.5);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="p-6 bg-gray-100">
+    <div id="deleteModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center hidden opacity-0 transition-opacity duration-300 transform scale-95">
+        <div class="bg-white p-6 shadow-lg w-[60%]">
+            <h3 class="mt-8 text-2xl font-semibold text-center">Are you sure you want to delete this cable?</h3>
+            <div class="mt-16 flex justify-end space-x-4">
+                <button id="deleteYes" class="px-4 py-2 min-w-[150px] bg-gray-800 text-white hover:bg-gray-700 w-[20%] text-lg">Yes</button>
+                <button id="deleteNo" class="px-4 py-2 min-w-[150px] border border-black text-black hover:bg-gray-100 w-[20%] text-lg"onclick="closeModal()">No</button>
+            </div>
+        </div>
+    </div>
+    <div class="fixed top-0 left-0 w-full bg-white shadow-md px-6 py-8 flex justify-between items-center border-b z-30">
+        <div class="flex gap-16">
+            <div class="flex items-center">
+                <h1 id="enclosureTitle" class="text-xl font-semibold cursor-pointer "></h1>
+                <input id="titleInput" type="text" class="hidden border-b border-gray-400 focus:outline-none focus:border-black text-center text-xl w-32 " />
+                <button id="editTitleBtn" class="ml-2 text-gray-500 hover:text-gray-700 ">
+                    <span class="grayscale filter grayscale-[100%]">✏️</span></button>
+            </div>
+            <div class="flex gap-6">
+                <button class="flex items-center gap-3 text-gray-700 hover:text-black text-xl " id="openSidebar">
+                    <span class="grayscale filter grayscale-[100%]">📋</span> <span>Add to Cable</span>
+                </button>
+                <button class="flex items-center gap-3 text-gray-700 hover:text-black text-xl " id="exportButton">
+                    <span class="grayscale filter grayscale-[100%]">🖨️</span> <span>Print</span>
+                </button>
+                <button class="flex items-center gap-3 text-gray-700 hover:text-black text-xl " onClick="saveSheet()" id="saveButton">
+                    <span class="grayscale filter grayscale-[100%]">💾</span> <span>Save</span>
+                </button>
+                <!-- Loading spinner -->
+                <div id="loading" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    Saving...
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center">
+            <button class="text-gray-700 hover:text-black text-xl flex items-center" onclick="redirectToPage('dashboard.html')">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-black">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span>Back</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-0 transition-opacity duration-300 hidden z-10"></div>
+    <div id="sidebar" class="fixed left-0 top-0 pt-24 w-64 h-full bg-gray-300 shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out sidebar-enter hidden flex flex-col z-20">
+        <div class="p-4 text-center font-bold text-lg border-b">Select a Cable</div>
+        <div class="overflow-y-auto flex-1">
+            <div id="imageButtonsContainer"></div>
+        </div>
+        <button class="bg-black text-white py-2 mt-4" id="createCable">Create Cable</button>
+    </div>
+    <div class="bg-white px-16 py-10 mt-20 shadow-md rounded-md">
+        <div class="mt-4">
+            <div class="flex gap-[32px]">
+                <div class="flex items-center gap-2 py-4 w-full md:w-[50%]">
+                    <label class="font-bold uppercase text-gray-800 whitespace-nowrap">Company:</label>
+                    <input type="text" class="border-b border-gray-400 focus:outline-none focus:border-black text-center w-full" id="company" />
+                </div>
+                <div class="flex items-center gap-2 py-4 w-full md:w-[25%]">
+                    <label class="font-bold uppercase text-gray-800 whitespace-nowrap">Tech:</label>
+                    <input type="text" class="border-b border-gray-400 focus:outline-none focus:border-black text-center w-full" id="tech" />
+                </div>
+                <div class="flex items-center gap-2 py-4 w-full md:w-[25%]">
+                    <label class="font-bold uppercase text-gray-800 whitespace-nowrap">Location ID:</label>
+                    <input type="text" class="border-b border-gray-400 focus:outline-none focus:border-black text-center w-full" id="location_id"/>
+                </div>
+            </div>
+            <div class="flex gap-[32px]">
+                <div class="flex items-center gap-2 py-4 w-full md:w-1/3"> 
+                    <label class="font-bold uppercase text-gray-800 whitespace-nowrap">Date:</label>
+                    <input type="date" class="border-b border-gray-400 focus:outline-none focus:border-black text-center w-full" id="date" />
+                </div>
+                <div class="flex items-center gap-2 py-4 w-full md:w-1/3">
+                    <label class="font-bold uppercase text-gray-800 whitespace-nowrap">Enclosure #:</label>
+                    <input type="text" class="border-b border-gray-400 focus:outline-none focus:border-black text-center w-full" id="enclosure_id"/>
+                </div>
+                <div class="flex items-center gap-2 py-4 w-full md:w-1/3">
+                    <label class="font-bold uppercase text-gray-800 whitespace-nowrap">Enclosure Type:</label>
+                    <input type="text" class="border-b border-gray-400 focus:outline-none focus:border-black text-center w-full" id="enclosure_type" />
+                </div>
+            </div>
+            <div class="flex gap-[32px]">
+                <div class="flex items-center gap-2 py-4 w-full md:w-1/2">
+                    <label class="font-bold uppercase text-gray-800 whitespace-nowrap mr-3">Road Name:</label>
+                    <input type="text" class="border-b border-gray-400 focus:outline-none focus:border-black text-center w-full item-center" id="road_name" />
+                </div>
+                <div class="flex items-center gap-2 py-4 w-full md:w-1/2">
+                    <label class="font-bold uppercase text-gray-800 whitespace-nowrap">Lat/Long:</label>
+                    <input type="text" class="border-b border-gray-400 focus:outline-none focus:border-black text-center w-full" value="" id="lat_long"/>
+                    <button type="button" onclick="openMapPopup()" class="border-0 border-b border-b-gray-500 text-black hover:bg-gray-100 w-[15%]">
+                        <span class="grayscale filter grayscale-[100%]">📍</span>
+                    </button>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 py-4 ">
+                <label class="font-bold uppercase text-gray-800 whitespace-nowrap">Notes:</label>
+                <input type="text" class="border-b border-gray-400 focus:outline-none focus:border-black text-center w-full" value="" id="notes"/>
+            </div>
+            <div class="flex items-center gap-4 py-4">
+                <label class="font-bold uppercase text-gray-800 whitespace-nowrap">Attachments:</label>
+                <input type="file" id="fileUpload" class="border-b border-gray-400 focus:outline-none focus:border-black text-center hidden" />
+                <label for="fileUpload" class="cursor-pointer border-b border-gray-400 text-gray-700 hover:text-black">Choose File</label>
+            </div>
+            <ul id="fileList" class="list-disc pl-5 text-gray-800"></ul>
+        </div>
+        <div class="flex gap-32 mt-4">
+            <div class="flex items-center gap-2 py-4">
+                <span>Make Fiber Connection</span>
+                <button id="toggleConnection" class="w-14 h-8 flex items-center rounded-full p-1 bg-red-500 transition duration-300" onclick="toggleConnection()">
+                    <div id="grayConnection" class="w-6 h-6 bg-white rounded-full transition duration-300 transform translate-x-0"></div>
+                </button>
+            </div>
+            <div class="flex items-center gap-2 py-4">
+                <span>Fiber Connection Status</span>
+                <button id="toggleStatus" class="w-14 h-8 flex items-center rounded-full p-1 bg-red-500 transition duration-300" onclick="toggleStatus()">
+                    <div id="grayStatus" class="w-6 h-6 bg-white rounded-full transition duration-300 transform translate-x-0"></div>
+                </button>
+            </div>
+            
+        </div>
+        <div class="border-t border-dashed w-[60vw] mx-auto mt-4 mb-8 bg-black text-center" ></div>
+        <div id="table_add">
+        </div>
+    </div>
+    <div id="customAlert" style="display: none; position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: rgb(29, 29, 29); color: white; padding: 10px; border-radius: 0px;">
+        <span id="alertMessage"></span>
+    </div>
+</body>
+<script src="../src/main/filemanager.js"></script>
+<script src="../src/main/sheet.js"></script>
+<script src="../src/main/map.js"></script>
+<script src="../src/main/main.js"></script>
+<script src="../src/main/loading.js"></script>
+<script src="../src/main/sidebar.js"></script>
+</html>

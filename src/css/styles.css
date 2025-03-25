@@ -1,0 +1,106 @@
+body {
+    font-family: "Inter";
+    height: 100vh;
+    background-color: #fcfcfc;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+.container {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.background-image {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 500px;
+    max-width: 30vw;
+    opacity: 1;
+}
+.content {
+    text-align: right;
+    position: relative;
+    z-index: 1;
+    margin-right: 10vw;
+}
+.btn-dark {
+    margin-right: 10px;
+    border-radius: 0px;
+    font-size: 2em;
+    min-width: 14vw;
+}
+.btn-light {
+    color: #212121;
+    font-size: 2em;
+    text-decoration: none;
+    border-radius: 0px;
+    border: 1px solid black;
+    min-width: 14vw;
+}
+.btn-light:hover {
+    text-decoration: underline;
+}
+.name-title {
+    font-size: 5em;
+    font-weight: 400;
+}
+.name-title2 {
+    text-align: center;
+    font-size: 4em;
+    margin-bottom: 100px;
+    font-weight: 300;
+}
+.sub-title {
+    font-size: 1.5rem;
+    display: inline-block;
+    align-items: end;
+    color: rgb(33 37 41) !important;
+    margin-bottom: 140px;
+    width: 435px;
+    text-align: right;
+}
+.form-title {
+    margin-right: 8vw;
+}
+.form-group {
+    display: flex;
+    justify-content: space-between;
+    text-align: left;
+    margin-bottom: 45px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    min-width: 300px;
+    text-align: right;
+    font-size: 1.5rem;
+    font-weight: 300;
+    margin-right: 43px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 5px;
+    border: none;
+    border-bottom: 1px solid black;
+    outline: none;
+    font-size: 1.5rem;
+    background: transparent;
+}
+.buttons {
+    margin-top: 100px;
+    text-align: right;
+    justify-content: flex-end;
+    display: flex;
+    gap: 4vw;
+}
+.div-dot {
+    width: 200px;         /* Set the desired width */
+    overflow: hidden;     /* Hide overflowing text */
+    white-space: nowrap;  /* Prevent text wrapping */
+    text-overflow: ellipsis; /* Add ellipsis when text overflows */
+}
