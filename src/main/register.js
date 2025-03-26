@@ -1,3 +1,5 @@
+require('dotenv').config();
+const Backend_Link = process.env.OFFLINE_LINK;
 async function register(event) {
     
     event.preventDefault();
@@ -18,7 +20,7 @@ async function register(event) {
         return; 
     }
     try {
-        const response = await fetch("http://localhost:3000/api/auth/register", {
+        const response = await fetch(`${Backend_Link}/api/auth/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

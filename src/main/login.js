@@ -1,3 +1,6 @@
+require('dotenv').config();
+const Backend_Link = process.env.OFFLINE_LINK;
+
 async function login(event) {
     event.preventDefault();
     const email = document.getElementById("email").value.trim();
@@ -8,7 +11,7 @@ async function login(event) {
     }
 
     try {
-        const response = await fetch('http://localhost:3000/api/auth/login', {
+        const response = await fetch(`${Backend_Link}/api/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

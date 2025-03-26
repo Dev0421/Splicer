@@ -1,5 +1,4 @@
 const axios = require("axios");
-
 const sidebar = document.getElementById('sidebar');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
 const openSidebar = document.getElementById('openSidebar');
@@ -126,7 +125,7 @@ fileUpload.addEventListener('change', async () => {
     formData.append('userId', userId); // Add userId
 
     try {
-        const response = await axios.post('http://localhost:3000/api/files/upload', formData, {
+        const response = await axios.post(`${Backend_Link}/api/files/upload`, formData, {
             headers: { Authorization: token, 'Content-Type': 'multipart/form-data' }
         });
 
@@ -353,7 +352,7 @@ async function getProjectById(id) {
         return null;
     }
     try {
-        const response = await axios.get(`http://localhost:3000/api/project/${id}`, {
+        const response = await axios.get(`${Backend_Link}/api/project/${id}`, {
             headers: { Authorization: token }
         });
         return response.data;
@@ -375,7 +374,7 @@ async function getProjectByEnclosureId(id) {
     };
     
     try {
-        const response = await axios.post('http://localhost:3000/api/files/getnames', formData, {
+        const response = await axios.post(`${Backend_Link}/api/files/getnames`, formData, {
             headers: { Authorization: token, 'Content-Type': 'application/json' }
         });
     
@@ -463,7 +462,7 @@ async function downloadFile(fileId, fileName) {
 
     try {
         console.log("Download", fileId, fileName);
-        const response = await axios.get(`http://localhost:3000/api/files/download/${fileId}`, {
+        const response = await axios.get(`${Backend_Link}/api/files/download/${fileId}`, {
             headers: { Authorization: token },
             responseType: 'blob' // Ensure the response is treated as a file
         });
@@ -489,7 +488,7 @@ async function deleteFile(fileId) {
     }
 
     try {
-        await axios.delete(`http://localhost:3000/api/files/delete/${fileId}`, {
+        await axios.delete(`${Backend_Link}/api/files/delete/${fileId}`, {
             headers: { Authorization: token }
         });
 

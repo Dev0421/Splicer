@@ -1,7 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 const file_path = "src/assets/data/";
-
+require('dotenv').config();
+const Backend_Link = process.env.OFFLINE_LINK;
 function saveFile(filePath, objectData) {
     const directory = path.dirname(filePath);
     if (!fs.existsSync(directory)) {
@@ -18,6 +19,7 @@ function loadFile(filePath) {
     }
     return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
+
 
 function loadSheet(file_src) {
     const loadedData = loadFile(file_src);
@@ -103,7 +105,7 @@ async function saveSheet() {
             notes: sheet.notes,
         };
         console.log("This is formdata before update", formData);
-        const response = await fetch(`http://localhost:3000/api/project/${id}`, {
+        const response = await fetch(`${Backend_Link}/api/project/${id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",

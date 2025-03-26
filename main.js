@@ -11,23 +11,18 @@ app.whenReady().then(() => {
             contextIsolation: false,
         }
     });
-
     mainWindow.maximize(); // Maximizes the window without fullscreen
-
     mainWindow.loadFile("public/index.html");
-
     mainWindow.on('closed', () => {
         mainWindow = null;
     });
 });
 
-// Listen for navigation requests
 ipcMain.on('navigate-to-page', (event, page) => {
     if (mainWindow) {
         mainWindow.loadFile(`public/${page}`); // Ensure correct path
     }
 });
-
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();

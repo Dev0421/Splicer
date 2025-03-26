@@ -1,5 +1,5 @@
 const axios = require("axios");
-
+require('dotenv').config();
 const fs = require("fs");
 const path = require("path");
 
@@ -8,6 +8,7 @@ const projectModal = document.getElementById('projectModal');
 const cancelBtn = document.getElementById('cancelBtn');
 const searchInput = document.getElementById('searchInput');
 const file_path = "src/assets/data/";
+const Backend_Link = process.env.OFFLINE_LINK;
 function saveFile(filePath, objectData) {
   const directory = path.dirname(filePath);
   if (!fs.existsSync(directory)) {
@@ -58,7 +59,7 @@ async function getProjects() {
   }
 
   try {
-    const response = await axios.get("http://localhost:3000/api/projects", {
+    const response = await axios.get(`${Backend_Link}/api/projects`, {
       headers: { Authorization: token }
     });
     let str = "";
@@ -95,7 +96,7 @@ async function getProjectById(id) {
   }
 
   try {
-    const response = await axios.get(`http://localhost:3000/api/project/${id}`, {
+    const response = await axios.get(`${Backend_Link}/api/project/${id}`, {
       headers: { Authorization: token }
     });
     localStorage.setItem("enclosure_info", response.data);
@@ -121,64 +122,67 @@ document.getElementById("searchInput").addEventListener("input", function () {
       }
   });
 });
-
 document.getElementById("enclosureForm").addEventListener("submit", async function(event) {
-    event.preventDefault();
+  event.preventDefault();
 
-    const token = localStorage.getItem("token");
-    if (!token) {
+  const token = localStorage.getItem("token");
+  if (!token) {
       showCustomAlert("No token found! Please log in.");
-        return;
-    }
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');  // Months are 0-indexed, so we add 1
-    const day = String(now.getDate()).padStart(2, '0');
-    const hour = String(now.getHours()).padStart(2, '0');
-    const minute = String(now.getMinutes()).padStart(2, '0');
-    const second = String(now.getSeconds()).padStart(2, '0');
-    const formattedDateTime = `${year}_${month}_${day}_${hour}_${minute}_${second}`;
-    const formData = {
-        title: document.getElementById("title").value,
-        company: document.getElementById("company").value,
-        file_src: file_path+formattedDateTime+document.getElementById("title").value+".json",
-        date: now.toLocaleDateString('en-CA'),
-        tech: document.getElementById("tech").value,
-        location_id: document.getElementById("location_id").value,
-        enclosure_id: document.getElementById("enclosure_id").value,
-        enclosure_type: document.getElementById("enclosure_type").value,
-        road_name: document.getElementById("road_name").value,
-        lat_long: document.getElementById("lat_long").value,
-        notes: document.getElementById("notes").value,
-        tableCount: 0,
-        table: [],
-    };
-    saveFile(file_path+formattedDateTime+document.getElementById("title").value+".json", formData);
-    try {
-        const response = await fetch("http://localhost:3000/api/project/create", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `${token}` 
-            },
-            body: JSON.stringify(formData),
-        });
+      return;
+  }
 
-        const data = await response.json();
-        if (data.success) {
-          console.log(data.project);
-            displayEnclosure(data.project);
-            projectModal.classList.add('opacity-0', 'scale-95');
-            setTimeout(() => {
-                projectModal.classList.add('hidden');
-            }, 300);
-        } else {
-            console.log("Error saving: " + data.message);
-        }
-    } catch (error) {
-        console.error("Error:", error);
-    }
+  const now = new Date();
+  const formattedDateTime = now.toISOString().replace(/[-T:.Z]/g, "_"); // Cleaner date formatting
+  const fileName = `${file_path}${formattedDateTime}_${document.getElementById("title").value}.json`;
+
+  const formData = {
+      title: document.getElementById("title").value.trim(),
+      company: document.getElementById("company").value.trim(),
+      file_src: fileName,
+      date: now.toLocaleDateString('en-CA'),
+      tech: document.getElementById("tech").value.trim(),
+      location_id: document.getElementById("location_id").value,
+      enclosure_id: document.getElementById("enclosure_id").value,
+      enclosure_type: document.getElementById("enclosure_type").value,
+      road_name: document.getElementById("road_name").value.trim(),
+      lat_long: document.getElementById("lat_long").value.trim(),
+      notes: document.getElementById("notes").value.trim(),
+      tableCount: 0,
+      table: [],
+  };
+
+  saveFile(fileName, formData);  // Assuming saveFile is a function that correctly saves the file
+  console.log("Token:", token);
+
+  try {
+      console.log("Creating Project...");
+      const response = await fetch(`${Backend_Link}/api/project/create`, {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+              "Authorization": token,  // No need for template literals unless dynamically modifying
+          },
+          body: JSON.stringify(formData),
+      });
+
+      const data = await response.json(); // Await the JSON response
+
+      if (response.ok && data.success) { // Ensuring the request was successful
+          console.log("Project Created:", data.project);
+          displayEnclosure(data.project);
+
+          projectModal.classList.add('opacity-0', 'scale-95');
+          setTimeout(() => {
+              projectModal.classList.add('hidden');
+          }, 300);
+      } else {
+          console.error("Error saving:", data.message || "Unknown error from server");
+      }
+  } catch (error) {
+      console.error("Request failed:", error);
+  }
 });
+
 
 function displayEnclosure(data) {
   const container = document.getElementById("data-container");
@@ -238,7 +242,7 @@ function deleteCard(cardId) {
     return;
   }
 
-  axios.delete(`http://localhost:3000/api/project/${cardId}`, {
+  axios.delete(`${Backend_Link}/api/project/${cardId}`, {
     headers: {
       'Authorization': `${token}`
     }
