@@ -1,0 +1,27 @@
+.status-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: red; /* Default to offline */
+}
+.form-group input[type="radio"] {
+    accent-color: black; /* Set the radio button color to black */
+    transform: scale(1.5); /* Increase the size of the radio buttons */
+    margin-right: 5px; /* Add spacing between the button and label */
+}
+.form-group label {
+    color: black; /* Set the label text color to black */
+}
+.form-group .radio-container {
+    display: flex; /* Arrange radio buttons in a row */
+    align-items: center; /* Align items vertically */
+    gap: 10px; /* Add spacing between radio buttons */
+    justify-content: flex-start; /* Align items to the left */
+}
+.online{
+    text-align: left!important;
+    padding-left: 16px;  
+}

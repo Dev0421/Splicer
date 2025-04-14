@@ -1,0 +1,17 @@
+{
+  "title": "1",
+  "company": "132",
+  "file_src": "src/assets/data/2025-04-01 18_19_36_1.json",
+  "date": "2025-04-01",
+  "tech": "132",
+  "location_id": "132",
+  "enclosure_id": "132",
+  "enclosure_type": "13",
+  "road_name": "21",
+  "lat_long": "32",
+  "notes": "2132",
+  "tableCount": 0,
+  "table": [],
+  "created_at": "2025-04-01 18:19:36",
+  "updated_at": "2025-04-01 18:19:36"
+}

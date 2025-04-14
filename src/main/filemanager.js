@@ -1,8 +1,6 @@
 const fs = require("fs");
 const path = require("path");
 const file_path = "src/assets/data/";
-require('dotenv').config();
-const Backend_Link = process.env.OFFLINE_LINK;
 function saveFile(filePath, objectData) {
     const directory = path.dirname(filePath);
     if (!fs.existsSync(directory)) {
@@ -26,7 +24,15 @@ function loadSheet(file_src) {
     return loadedData;
 }
 function updateSheet() {
-    const now = new Date(); // Ensure 'now' is defined
+    const now = new Date();
+    const year = String(now.getFullYear()).slice(-2); // Get last two digits of the year
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hour = String(now.getHours()).padStart(2, '0');
+    const minute = String(now.getMinutes()).padStart(2, '0');
+    const second = String(now.getSeconds()).padStart(2, '0');
+    const formattedDateTime = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+
     sheet.title = document.getElementById("enclosureTitle")?.innerHTML || "";
     sheet.company = document.getElementById("company")?.value || "";
     sheet.date = now.toLocaleDateString('en-CA');
@@ -37,7 +43,10 @@ function updateSheet() {
     sheet.road_name = document.getElementById("road_name")?.value || "";
     sheet.lat_long = document.getElementById("lat_long")?.value || "";
     sheet.notes = document.getElementById("notes")?.value || "";
-    for(let i = 0; i< sheet.tableCount; i++){
+    sheet.created_at = sheet.created_at || formattedDateTime; // Set created_at only if it's not already set
+    sheet.updated_at = formattedDateTime; // Update the updated_at field to the current date and time
+
+    for (let i = 0; i < sheet.tableCount; i++) {
         let container = document.querySelectorAll(`[data-cable]`)[i]; // Select [i]th element containing "data-cable" attribute
         if (container) {
             sheet.table[i].cable_id = container.querySelector("#cable_id") ? parseInt(container.querySelector("#cable_id").value) || 0 : 0;
@@ -74,20 +83,20 @@ async function saveSheet() {
     setTimeout(function() {
         loading.style.display = "none";
     }, 500);
+
     const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');  // Months are 0-indexed, so we add 1
+    const year = String(now.getFullYear()).slice(-2); // Get last two digits of the year
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed, so we add 1
     const day = String(now.getDate()).padStart(2, '0');
     const hour = String(now.getHours()).padStart(2, '0');
     const minute = String(now.getMinutes()).padStart(2, '0');
     const second = String(now.getSeconds()).padStart(2, '0');
-    const formattedDateTime = `${year}_${month}_${day}_${hour}_${minute}_${second}`;
-    // console.log("Saving...");
-    const filePath = file_path+formattedDateTime+sheet.title+".json";
-    // console.log("Before Updatting ", sheet);
+    const formattedDateTime = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+
+    const filePath = file_path + `${year}_${month}_${day}_${hour}_${minute}_${second}_${sheet.title}.json`;
     updateSheet();
-    console.log("After updating", sheet);
     saveFile(filePath, sheet);
+
     try {
         const id = localStorage.getItem("projectId");
         const token = localStorage.getItem("token");
@@ -103,13 +112,16 @@ async function saveSheet() {
             road_name: sheet.road_name,
             lat_long: sheet.lat_long,
             notes: sheet.notes,
+            created_at: formattedDateTime,
+            updated_at: formattedDateTime,
         };
         console.log("This is formdata before update", formData);
-        const response = await fetch(`${Backend_Link}/api/project/${id}`, {
+
+        const response = await fetch(`${localStorage.getItem("Backend_Link")}/api/project/${id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `${token}` 
+                "Authorization": `${token}`
             },
             body: JSON.stringify(formData),
         });
@@ -124,9 +136,11 @@ async function saveSheet() {
     } catch (error) {
         console.error("Error:", error);
     }
-    loadSheet(filePath)
+
+    loadSheet(filePath);
     console.log("Saved file", sheet);
 }
+
 document.getElementById("exportButton").addEventListener("click", function() {
     console.log("Exporting data with multiple tables to CSV");
 

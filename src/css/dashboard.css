@@ -1,0 +1,26 @@
+#mapFrame {
+    width: 50%; /* Set iframe width to 50% */
+    height: 500px;
+    border: 1px solid #ccc;
+    display: none; /* Initially hidden */
+    position: absolute; /* Optional: Adjust position */
+    top: 50px; /* Adjust based on your layout */
+    left: 25%; /* Center it horizontally */
+    background: white;
+}
+#logoutButton {
+    border-radius: 0.375rem;   /* Tailwind's rounded-md class */
+    padding: 0.5rem 1rem;      /* Tailwind's padding classes */
+}
+
+#extraInfo {
+    z-index: 0;
+    top: -47px;
+}
+.status-indicator {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: red;
+}

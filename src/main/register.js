@@ -1,7 +1,5 @@
-require('dotenv').config();
-const Backend_Link = process.env.OFFLINE_LINK;
-async function register(event) {
-    
+require("dotenv").config();
+async function register(event) {    
     event.preventDefault();
 
     let username = document.querySelector('input[type="text"]').value.trim();
@@ -19,8 +17,12 @@ async function register(event) {
         showCustomAlert(errors.join("\n"), "error");
         return; 
     }
+    if (!(navigator.onLine)) {
+        showCustomAlert("You are offline. Please check your network connection.", "error");
+        return;
+    }
     try {
-        const response = await fetch(`${Backend_Link}/api/auth/register`, {
+        const response = await fetch(`http://localhost:3000/api/auth/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -28,15 +30,22 @@ async function register(event) {
             body: JSON.stringify({ username, email, password })
         });
         const data = await response.json();
-
-        console.log(data);
-        if (response.ok) {
-            showCustomAlert(data.message); // Show success message
+        const response2 = await fetch(`http://147.93.118.209:5000/api/auth/register`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username, email, password })
+        });
+        const data2 = await response2.json();
+        
+        if (response.ok && response2.ok) {
+            showCustomAlert(data.message); 
             setTimeout(() => {
-                window.location.href = "login.html"; // Redirect after success
+                window.location.href = "login.html";
             }, 1500);
         } else {
-            showCustomAlert(data.error); // Show error message from backend
+            showCustomAlert(data.error); 
             window.location.href = "login.html";
         }
     } catch (error) {

@@ -7,6 +7,12 @@ const createCableBtn = document.getElementById('createCable');
 const autoSave = 60; // Autosaving per 3000s
 let flg_connection = false;
 let flg_status = false;
+
+function formatDateToYYMMDDHHMMSS(date) {
+    const pad = (num) => num.toString().padStart(2, '0');
+    return `${date.getFullYear().toString().slice(-2)}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
+
 let sheet = {
     "title": "",
     "company": "",
@@ -20,7 +26,9 @@ let sheet = {
     "lat_long" : "",
     "notes" : "",
     "tableCount" : 0,
-    "table" : []
+    "table" : [],
+    "created_at": "", // Ensure created_at remains constant
+    "updated_at": ""  // Format updated_at
 }
 let selectedImage = null;
 let elementSelected = null;
@@ -102,7 +110,7 @@ let selectTable =
 const fileUpload = document.getElementById('fileUpload');
 const fileList = document.getElementById('fileList');
 const enclosureIdInput = document.getElementById('enclosure_id'); // Assuming enclosure_id input exists
-const userId = '12345';
+const userId = localStorage.getItem("userId"); // Get userId from localStorage
 
 fileUpload.addEventListener('change', async () => {
     const file = fileUpload.files[0]; // Get the first file
@@ -125,7 +133,7 @@ fileUpload.addEventListener('change', async () => {
     formData.append('userId', userId); // Add userId
 
     try {
-        const response = await axios.post(`${Backend_Link}/api/files/upload`, formData, {
+        const response = await axios.post(`${localStorage.getItem("Backend_Link")}/api/files/upload`, formData, {
             headers: { Authorization: token, 'Content-Type': 'multipart/form-data' }
         });
 
@@ -146,7 +154,7 @@ fileUpload.addEventListener('change', async () => {
                 <button class="p-2 bg-gray-100 text-gray-400 rounded-lg hover:bg-gray-300 focus:outline-none" onclick="deleteFile('${result.fileId}')">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m5 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+                        <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m5 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1-2 2v2"></path>
                         <line x1="10" y1="11" x2="10" y2="17"></line>
                         <line x1="14" y1="11" x2="14" y2="17"></line>
                     </svg>
@@ -181,7 +189,7 @@ function showCable(){
                 <button class="p-2 bg-gray-100 text-gray-400 rounded-full hover:bg-gray-300 focus:outline-none w-[80%]" onclick="deletecable(this)">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m5 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+                            <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m5 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1-2 2v2"></path>
                             <line x1="10" y1="11" x2="10" y2="17"></line>
                             <line x1="14" y1="11" x2="14" y2="17"></line>
                         </svg>
@@ -245,12 +253,15 @@ function showCable(){
                     const F_COLOR = colorOrder[(index2)%count_per_tube];
                     const BT_NUM = fiber.buffer_tube_id;
                     const BT_COLOR = colorOrder[(BT_NUM - 1) % count_per_tube];
+                    let BT_COLOR_ADD_TEXT = ""; // Changed from const to let
+                    if(index2 >= 288) BT_COLOR_ADD_TEXT = "-DT";
+                    else if(index2 >= 144) BT_COLOR_ADD_TEXT = "-ST";
                     addtext += `
                     <tr class="border border-gray-400">
                         <td class="px-4 pt-1 text-center text-gray-600 border-r border-gray-400">${index2+1}</td>
                         <td class="px-4 pt-1 text-center color-box font-semibold border-r border-gray-400">${F_COLOR}<div class="underline ${F_COLOR} bg-opacity-50 rounded-sm"></div></td>
                         <td class="px-4 pt-1 text-center text-gray-600 border-r border-gray-400">${BT_NUM}</td>
-                        <td class="px-4 pt-1 text-center color-box font-semibold border-r border-gray-400">${BT_COLOR}<div class="underline ${BT_COLOR} bg-opacity-50 rounded-sm"></div></td>
+                        <td class="px-4 pt-1 text-center color-box font-semibold border-r border-gray-400">${BT_COLOR}${BT_COLOR_ADD_TEXT}<div class="underline ${BT_COLOR} bg-opacity-50 rounded-sm"></div></td>
                             <td class="px-4 pt-1 text-center text-gray-600 border-r border-gray-400">
                             <input 
                                 type="text" 
@@ -352,7 +363,7 @@ async function getProjectById(id) {
         return null;
     }
     try {
-        const response = await axios.get(`${Backend_Link}/api/project/${id}`, {
+        const response = await axios.get(`${localStorage.getItem("Backend_Link")}/api/project/${id}`, {
             headers: { Authorization: token }
         });
         return response.data;
@@ -369,15 +380,15 @@ async function getProjectByEnclosureId(id) {
     }
     
     const formData = {
-        userId: "12345", // Replace with the actual userId
-        enclosure_id: id // Ensure `sheet.enclosure_id` is defined
+        userId: localStorage.getItem("userId"), 
+        enclosure_id: id, // Ensure `sheet.enclosure_id` is defined
+        created_at: sheet.created_at, // Include created_at
+        updated_at: sheet.updated_at  // Include updated_at
     };
-    
     try {
-        const response = await axios.post(`${Backend_Link}/api/files/getnames`, formData, {
+        const response = await axios.post(`${localStorage.getItem("Backend_Link")}/api/files/getnames`, formData, {
             headers: { Authorization: token, 'Content-Type': 'application/json' }
         });
-    
         const result = response.data;
         return result.files;
     } catch (error) {
@@ -462,7 +473,7 @@ async function downloadFile(fileId, fileName) {
 
     try {
         console.log("Download", fileId, fileName);
-        const response = await axios.get(`${Backend_Link}/api/files/download/${fileId}`, {
+        const response = await axios.get(`${localStorage.getItem("Backend_Link")}/api/files/download/${fileId}`, {
             headers: { Authorization: token },
             responseType: 'blob' // Ensure the response is treated as a file
         });
@@ -488,7 +499,7 @@ async function deleteFile(fileId) {
     }
 
     try {
-        await axios.delete(`${Backend_Link}/api/files/delete/${fileId}`, {
+        await axios.delete(`${localStorage.getItem("Backend_Link")}/api/files/delete/${fileId}`, {
             headers: { Authorization: token }
         });
 
@@ -576,7 +587,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <button class="p-2 bg-gray-100 text-gray-400 rounded-lg hover:bg-gray-300 focus:outline-none" onclick="deleteFile('${file.id}')">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m5 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+                        <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m5 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1-2 2v2"></path>
                         <line x1="10" y1="11" x2="10" y2="17"></line>
                         <line x1="14" y1="11" x2="14" y2="17"></line>
                     </svg>
@@ -620,7 +631,7 @@ createCableBtn.addEventListener('click', () => {
                     <button class="p-2 bg-gray-100 text-gray-400 rounded-full hover:bg-gray-300 focus:outline-none w-[80%]" onclick="deletecable(this)">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m5 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+                            <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m5 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1-2 2v2"></path>
                             <line x1="10" y1="11" x2="10" y2="17"></line>
                             <line x1="14" y1="11" x2="14" y2="17"></line>
                         </svg>
@@ -681,13 +692,15 @@ createCableBtn.addEventListener('click', () => {
                 const F_COLOR = colorOrder[i % selectTable[img_id].count_per_tube];
                 const BT_NUM = Math.floor(i / selectTable[img_id].count_per_tube);
                 const BT_COLOR = colorOrder[BT_NUM % selectTable[img_id].count_per_tube];
-
+                let BT_COLOR_ADD_TEXT = ""; // Changed from const to let
+                if(i >= 288) BT_COLOR_ADD_TEXT = "-DT";
+                else if(i >= 144) BT_COLOR_ADD_TEXT = "-ST";
                 addtext += `
                     <tr class="border border-gray-400">
                         <td class="px-4 pt-1 text-center text-gray-600 border-r border-gray-400">${i + 1}</td>
                         <td class="px-4 pt-1 text-center color-box font-semibold  border-r border-gray-400">${F_COLOR}<div class="underline ${F_COLOR} bg-opacity-50 rounded-sm"></div></td>
                         <td class="px-4 pt-1 text-center text-gray-600 border-r border-gray-400" >${BT_NUM + 1}</td>
-                        <td class="px-4 pt-1 text-center color-box font-semibold  border-r border-gray-400">${BT_COLOR}<div class="underline ${BT_COLOR} bg-opacity-50 rounded-sm"></div></td>
+                        <td class="px-4 pt-1 text-center color-box font-semibold  border-r border-gray-400">${BT_COLOR}${BT_COLOR_ADD_TEXT}<div class="underline ${BT_COLOR} bg-opacity-50 rounded-sm"></div></td>
                          <td class="px-4 pt-1 text-center text-gray-600 border-r border-gray-400">
                             <input 
                                 type="text" 
@@ -719,8 +732,6 @@ createCableBtn.addEventListener('click', () => {
 });
 
 function handleInputFiberNote(event, tableIndex, fiberIndex) {
-    console.log("Ruuinning")
-    console.log(tableIndex, fiberIndex, event.target.value);
     sheet.table[tableIndex].connection[fiberIndex].notes = event.target.value;
 }
 
@@ -935,3 +946,8 @@ function toggleEditCable(button) {
         updateSheet();
     }
 }
+
+if (!sheet.created_at) {
+    sheet.created_at = new Date().toISOString(); // Set created_at only if not already defined
+}
+sheet.updated_at = new Date().toISOString(); // Always update updated_at

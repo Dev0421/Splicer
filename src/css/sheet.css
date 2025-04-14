@@ -22,7 +22,6 @@
 .VIOLET { background-color: rgba(238, 130, 238, 0.5); }  /* Violet */
 .ROSE { background-color: rgba(255, 192, 203, 0.5); }  /* Pink (Rose) */
 .AQUA { background-color: rgba(0, 255, 255, 0.5); }  /* Aqua */
-
 .wide-input {
     width: 100%;
 }
@@ -62,7 +61,17 @@
     height: 40px;
     animation: spin 1s linear infinite;
 }
-
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+    width: 12px;
+}
+::-webkit-scrollbar-track {
+    background: hsla(0, 0%, 0%, 0.2);
+}
+::-webkit-scrollbar-thumb {
+    background-color: hsla(0, 0%, 0%, 0.5);
+    border-radius: 10px;
+}
 /* Spinner animation */
 @keyframes spin {
     0% { transform: rotate(0deg); }
