@@ -59,9 +59,14 @@
             <input type="text" placeholder="Search" 
                 class="bg-gray-100 text-lg border-b border-gray-400 focus:outline-none focus:border-black text-left w-1/3 relative -bottom-2" 
                 id="searchInput">
-            <button class="bg-black text-white px-4 py-2" id="openDialogBtn">
-                + New Enclosure
-            </button>
+            <div class="flex space-x-4">
+                <button class="bg-black text-white px-4 py-2" id="openDialogBtn">
+                    + New Enclosure
+                </button>
+                <button class="bg-gray-800 text-white px-4 py-2" id="exportHeadingsBtn" onclick="exportAllHeadings()">
+                    Export All Headings
+                </button>
+            </div>
         </div>
 
           <div class="grid grid-cols-4 gap-6" id="data-container">
@@ -129,7 +134,7 @@
         </div>
       </div>
     <!-- Modal -->
-    <div id="deleteModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center hidden opacity-0 transition-opacity duration-300 transform scale-95">
+    <div id="deleteModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center hidden opacity-0 transition-opacity duration-300 transform scale-95 z-10">
         <div class="bg-white p-6 shadow-lg w-[60%]">
             <h3 class="mt-8 text-2xl font-semibold text-center">Are you sure you want to delete this enclosure?</h3>
             <div class="mt-16 flex justify-end space-x-4">

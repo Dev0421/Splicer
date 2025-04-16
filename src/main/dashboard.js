@@ -490,3 +490,34 @@ async function syncProjects() {
   // Reload the page after synchronization
   window.location.reload();
 }
+function exportAllHeadings() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("No token found! Please log in.");
+    return;
+  }
+  const userId = localStorage.getItem("userId"); // Retrieve userID from localStorage
+  axios.get(`${localStorage.getItem("Backend_Link")}/api/projects?userId=${userId}`, {
+    headers: { Authorization: token }
+  })
+  .then(response => {
+    const csvHeader = `Title,Company,Tech,Location ID,Enclosure ID,Enclosure Type,Date,Road Name,Lat,Long,Notes\n`;
+    const csvRows = response.data.map(project => 
+      `${project.title},${project.company},${project.tech},${project.location_id},${project.enclosure_id},${project.enclosure_type},${project.date},${project.road_name},${project.lat_long.split(',')[0]},${project.lat_long.split(',')[1]},${project.notes}`
+    ).join('\n');
+    const csvContent = csvHeader + csvRows;
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'projects_data.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  })
+  .catch(error => {
+    console.error("Error:", error.response ? error.response.data : error.message);
+  });
+}

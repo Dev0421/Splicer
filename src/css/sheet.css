@@ -36,6 +36,9 @@
 .selected {
     background-color: rgb(199, 199, 199);
 }
+.secondSelected {
+    background-color: rgb(138, 190, 184);
+}
 /* Styling for the loading spinner */
 .loading {
     display: flex;

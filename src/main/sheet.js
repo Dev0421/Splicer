@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { min } = require("moment/moment");
 const sidebar = document.getElementById('sidebar');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
 const openSidebar = document.getElementById('openSidebar');
@@ -27,8 +28,8 @@ let sheet = {
     "notes" : "",
     "tableCount" : 0,
     "table" : [],
-    "created_at": "", // Ensure created_at remains constant
-    "updated_at": ""  // Format updated_at
+    "created_at": "",
+    "updated_at": ""
 }
 let selectedImage = null;
 let elementSelected = null;
@@ -173,7 +174,7 @@ fileUpload.addEventListener('change', async () => {
 });
 //============================= Functions ====================================//
 
-function showCable(){
+function showCable(sheet){
     console.log("Showing tables...");
     document.getElementById("table_add").innerHTML = "";
     console.log("sheet.tableCount", sheet.tableCount);
@@ -233,7 +234,7 @@ function showCable(){
                 </div>
             </div>
             <div class="border border-black-600 rounded-lg overflow-hidden">
-                <table class="min-w-full table-auto border border-2 border-gray-500" data-table="${cable.id ?? ''}">
+                <table class="min-w-full table-auto border border-2 border-gray-500 select-none" data-table="${cable.id ?? ''}">
                     <thead>
                         <tr class="border-b-3 border-gray-500">
                             <th class="px-4 py-2 text-center text-gray-100 font-semibold w-[5%] border-r border-gray-500 bg-gray-600 border-b">F #</th>
@@ -341,7 +342,7 @@ function deleteCableById(cableId) {
     sheet.tableCount -= 1;
     sheet.table = sheet.table.filter(cable => cable.id != cableId);
     console.log("Sheet after deleting... ", sheet);
-    showCable();
+    showCable(sheet);
     closeModal();
 }
 
@@ -422,7 +423,7 @@ function updateFormFields(){
         }
     });
     console.log("Enclosure information is newly Updated");
-    showCable();
+    showCable(sheet);
 }
 
 function createNavbar(){
@@ -675,7 +676,7 @@ createCableBtn.addEventListener('click', () => {
                 </div>
             </div>
             <div class="border border-black-600 rounded-lg overflow-hidden">
-                <table class="min-w-full table-auto border border-2 border-gray-500" data-table="${sheet.table.at(-1).id}">
+                <table class="min-w-full table-auto border border-2 border-gray-500 select-none" data-table="${sheet.table.at(-1).id}">
                     <thead>
                         <tr class="border-b-3 border-gray-500">
                             <th class="px-4 py-2 text-center text-gray-100 font-semibold w-[5%] border-r border-gray-500 bg-gray-600 border-b">F #</th>
@@ -722,8 +723,6 @@ createCableBtn.addEventListener('click', () => {
             addtext += `</tbody>
                 </table>
                 </div>`
-        console.log("After Creating Sheet", sheet);
-        console.log("addtext", addtext);
         document.getElementById("table_add").insertAdjacentHTML('beforeend', addtext);
         setClickableElements()
     } else {
@@ -843,43 +842,209 @@ function findKeyWithValue(obj, value) {
     }
     return null;
 }
+//###################################################################################################################
+//###########          THis is for selections and status.       #######################
+let isDragging = false;
+let startCell = null;
+let currentColumnIndex = null;
+let selectedCells = [];
+let secondarySelectedCells = [];
+let hasMouseMoved = false;
+let prevcell = null;
+document.addEventListener("mousedown", (event) => {
+    if (!flg_connection) return;
+    const cell = event.target.closest(".clickable.cursor-pointer");
+    const table = cell?.closest("table");
 
-document.addEventListener("click", function (event) {
-    if (flg_connection) {
-        const cell = event.target.closest(".clickable.cursor-pointer");
-        if (!cell || cell === elementSelected) return;
-        else {
-            if (!elementSelected) {
-                document.querySelectorAll(".selected").forEach(c => c.classList.remove("selected"));
-                cell.classList.add("selected");
-                elementSelected = cell;
-            } else {
-                const table1 = cell.closest("table");
-                const cableId1 = table1.parentElement.previousElementSibling ? parseInt(table1.parentElement.previousElementSibling.querySelector("#cable_id").value) : null;
-                const table2 = elementSelected.closest("table");
-                const cableId2 = table2.parentElement.previousElementSibling ? parseInt(table2.parentElement.previousElementSibling.querySelector("#cable_id").value) : null;
-                elementSelected.classList.remove("selected");
-                const connection1 = `${sheet.location_id}${sheet.enclosure_id}C${cableId2}${elementSelected.getAttribute("data-content")}`;
-                const connection2 = `${sheet.location_id}${sheet.enclosure_id}C${cableId1}${cell.getAttribute("data-content")}`;
-                
-                document.querySelectorAll("td").forEach(td => {
-                    if (td.textContent.trim() === connection1 || td.textContent.trim() === connection2) {
-                        const table_id = parseInt(td.closest("table").parentElement.previousElementSibling.querySelector("#cable_id").value);
-                        const rowNum = td.closest("tr").rowIndex - 1;
-                        if (sheet.table[table_id] && sheet.table[table_id].connection[rowNum]) {
-                            sheet.table[table_id].connection[rowNum].connection = "";
-                        }
-                        td.textContent = "";
-                    }
-                });
-                // sheet.table[tableData1].connection[cell.closest("tr").rowIndex - 1].connection = connection1;
-                cell.textContent = connection1;
-                // sheet.table[tableData2].connection[elementSelected.closest("tr").rowIndex - 1].connection = connection2;
-                elementSelected.textContent = connection2;
-                elementSelected = null;
-            }
+    if (!cell || !table) return;
+    // ---- Highlight on status mode ----
+    if (flg_status) {
+        document.querySelectorAll("td.bg-yellow-300").forEach(td => td.classList.remove("bg-yellow-300"));
+        cell.classList.add("bg-yellow-300");
+
+        const cableId = parseInt(table.parentElement?.previousElementSibling?.querySelector("#cable_id")?.value);
+        const dataContent = cell.getAttribute("data-content");
+
+        if (cableId && dataContent) {
+            document.querySelectorAll("td").forEach(td => {
+                if (td.textContent.trim().endsWith(`C${cableId}${dataContent}`)) {
+                    td.classList.add("bg-yellow-300");
+                }
+            });
         }
     }
+    if (prevcell) {
+
+        elementSelected = prevcell;
+        prevcell = null;
+        if (!elementSelected) {
+            document.querySelectorAll(".selected").forEach(c => c.classList.remove("selected"));
+            cell.classList.add("selected");
+            elementSelected = cell;
+        } else {
+            const table1 = cell.closest("table");
+            const cableId1 = table1.parentElement.previousElementSibling ? parseInt(table1.parentElement.previousElementSibling.querySelector("#cable_id").value) : null;
+            const table2 = elementSelected.closest("table");
+            const cableId2 = table2.parentElement.previousElementSibling ? parseInt(table2.parentElement.previousElementSibling.querySelector("#cable_id").value) : null;
+            elementSelected.classList.remove("selected");
+            const connection1 = `${sheet.location_id}${sheet.enclosure_id}C${cableId2}${elementSelected.getAttribute("data-content")}`;
+            const connection2 = `${sheet.location_id}${sheet.enclosure_id}C${cableId1}${cell.getAttribute("data-content")}`;
+            
+            document.querySelectorAll("td").forEach(td => {
+                if (td.textContent.trim() === connection1 || td.textContent.trim() === connection2) {
+                    const table_id = parseInt(td.closest("table").parentElement.previousElementSibling.querySelector("#cable_id").value);
+                    const rowNum = td.closest("tr").rowIndex - 1;
+                    if (sheet.table[table_id] && sheet.table[table_id].connection[rowNum]) {
+                        sheet.table[table_id].connection[rowNum].connection = "";
+                    }
+                    td.textContent = "";
+                }
+            });
+            cell.textContent = connection1;
+            elementSelected.textContent = connection2;
+            elementSelected = null;
+        }
+    }
+    else{
+        // ---- Start drag-select ----
+        isDragging = true;
+        hasMouseMoved = false;
+        startCell = cell;
+        currentColumnIndex = cell.cellIndex;
+
+        if (secondarySelectedCells.length !== 0) clearSelection();
+        cell.classList.add("selected");
+
+        const onMouseMove = (event) => {
+            hasMouseMoved = true;
+
+            if (!isDragging) return;
+
+            const currentCell = event.target.closest(".clickable.cursor-pointer");
+            if (!currentCell || currentCell.cellIndex !== currentColumnIndex) return;
+
+            if (selectedCells.length !== 0) {
+                selectRange(startCell, currentCell, "secondSelected");
+            } else {
+                selectRange(startCell, currentCell, "selected");
+            }
+        };
+
+        const onMouseUp = () => {
+            document.removeEventListener("mousemove", onMouseMove);
+            document.removeEventListener("mouseup", onMouseUp);
+            isDragging = false;
+            if (!hasMouseMoved) {
+                prevcell = cell;
+                return;
+            }
+
+            if (selectedCells.length === 0) {
+                saveSelectedCells();
+            } else {
+                saveSecondarySelectedCells();
+            }
+        };
+
+        document.addEventListener("mousemove", onMouseMove);
+        document.addEventListener("mouseup", onMouseUp);
+    }
+    
+});
+
+function selectRange(start, end, className) {
+    const table = start.closest("table");
+    const rows = [...table.rows];
+    const startIndex = Math.min(start.parentElement.rowIndex, end.parentElement.rowIndex);
+    const endIndex = Math.max(start.parentElement.rowIndex, end.parentElement.rowIndex);
+
+    for (let i = startIndex; i <= endIndex; i++) {
+        const cell = rows[i]?.cells[currentColumnIndex];
+        if (cell) {
+            cell.classList.add(className);
+        }
+    }
+}
+
+function clearSelection() {
+    document.querySelectorAll(".selected").forEach(cell => {
+        cell.classList.remove("selected");
+    });
+    document.querySelectorAll(".secondSelected").forEach(cell => {
+        cell.classList.remove("secondSelected");
+    });
+    selectedCells = [];
+    secondarySelectedCells = [];
+}
+
+function saveSelectedCells() {
+    selectedCells = Array.from(document.querySelectorAll(".selected"));
+}
+
+function saveSecondarySelectedCells() {
+    secondarySelectedCells = Array.from(document.querySelectorAll(".secondSelected"));
+
+    // Filter out overlapping cells
+    selectedCells = selectedCells.filter(cell =>
+        !secondarySelectedCells.includes(cell)
+    );
+
+    console.log("First Selected Cells:", selectedCells);
+    console.log("Second Selected Cells:", secondarySelectedCells);
+
+    onSecondGroupSelected();
+}
+
+function onSecondGroupSelected() {
+    if (selectedCells.length === 0 || secondarySelectedCells.length === 0) return;
+
+    const table1 = selectedCells[0].closest("table");
+    const table2 = secondarySelectedCells[0].closest("table");
+
+    const cableId1 = parseInt(table1?.parentElement?.previousElementSibling?.querySelector("#cable_id")?.value) || null;
+    const cableId2 = parseInt(table2?.parentElement?.previousElementSibling?.querySelector("#cable_id")?.value) || null;
+
+    const connectCount = Math.min(selectedCells.length, secondarySelectedCells.length);
+    console.log("connect_num", connectCount);
+
+    for (let k = 0; k < connectCount; k++) {
+        const content1 = selectedCells[k].getAttribute("data-content");
+        const content2 = secondarySelectedCells[k].getAttribute("data-content");
+
+        const connection1 = `${sheet.location_id}${sheet.enclosure_id}C${cableId2}${content1}`;
+        const connection2 = `${sheet.location_id}${sheet.enclosure_id}C${cableId1}${content2}`;
+
+        console.log("connection1", connection1);
+        console.log("connection2", connection2);
+
+        document.querySelectorAll("td").forEach(td => {
+            const text = td.textContent.trim();
+            if (text === connection1 || text === connection2) {
+                const table = td.closest("table");
+                const tableId = parseInt(table?.parentElement?.previousElementSibling?.querySelector("#cable_id")?.value);
+                const rowNum = td.closest("tr")?.rowIndex - 1;
+
+                if (sheet.table?.[tableId]?.connection?.[rowNum]) {
+                    sheet.table[tableId].connection[rowNum].connection = "";
+                }
+
+                td.textContent = "";
+            }
+        });
+
+        selectedCells[k].textContent = connection2;
+        secondarySelectedCells[k].textContent = connection1;
+
+        secondarySelectedCells[k] = null;
+    }
+    clearSelection();
+}
+
+//##################################################################################################
+//##########################################################################
+
+
+document.addEventListener("click", function (event) {
     if (flg_status) {
         const cell = event.target.closest(".clickable.cursor-pointer");
         if (!cell) return;
@@ -919,29 +1084,23 @@ function toggleEditCable(button) {
         console.error("Content div not found.");
         return;
     }
+
     const inputs = contentDiv.querySelectorAll('input');
     const isEditable = inputs[0].hasAttribute('readonly');
+
     inputs.forEach(input => {
         input.toggleAttribute('readonly');
-        if(input.id != 'cable_id'){
+        if (input.id !== 'cable_id') {
             input.classList.toggle('text-gray-500', !isEditable);
-            if (isEditable) {
-                input.classList.remove('bg-gray-200');
-                input.classList.add('bg-gray-100');
-            } else {
-                input.classList.remove('bg-gray-100');
-                input.classList.add('bg-gray-200');
-            }
+            input.classList.toggle('bg-gray-100', isEditable);
+            input.classList.toggle('bg-gray-200', !isEditable);
         }
     });
+
     const icon = button.querySelector('span');
-    if (isEditable) {
-        icon.style.color = 'green';
-        button.classList.add('bg-gray-500');
-    } else {
-        icon.style.color = '';
-        button.classList.remove('bg-gray-500');
-    }
+    icon.style.color = isEditable ? 'green' : '';
+    button.classList.toggle('bg-gray-500', isEditable);
+
     if (!isEditable) {
         updateSheet();
     }
@@ -951,3 +1110,178 @@ if (!sheet.created_at) {
     sheet.created_at = new Date().toISOString(); // Set created_at only if not already defined
 }
 sheet.updated_at = new Date().toISOString(); // Always update updated_at
+
+function resetSheet() {
+    console.log("Resetting sheet...");
+    sheet = {
+        title: "",
+        company: "",
+        file_src: "",
+        date: "",
+        tech: "",
+        location_id: "",
+        enclosure_id: "",
+        enclosure_type: "",
+        road_name: "",
+        lat_long: "",
+        notes: "",
+        tableCount: 0,
+        table: [],
+        created_at: "",
+        updated_at: ""
+    };
+    document.getElementById("table_add").innerHTML = ""; // Clear the table UI
+    console.log("Sheet reset complete.");
+}
+
+function handleCSVImport(event) {
+    const file = event.target.files[0];
+    const fallback = document.getElementById('fileInputFallback');
+    if (file) {
+        fallback.classList.add('hidden');
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                resetSheet(); // Reset the sheet before importing
+                const csvContent = e.target.result;
+                console.log("CSV Content:", csvContent);
+
+                // Process the CSV content to extract sheet2
+                const sheet2 = processCSVToSheet2(csvContent);
+                console.log("Sheet2 Data:", sheet2);
+                console.log("KKKKK - enclosure ID", sheet2.enclosure_id);
+                alert("CSV file imported and sheet2 saved successfully!");
+            } catch (error) {
+                console.error("Error processing CSV:", error);
+                alert("Failed to process the CSV file. Please check the file format.");
+            }
+        };
+        reader.readAsText(file);
+    } else {
+        fallback.textContent = "No file selected.";
+        fallback.classList.remove('hidden');
+    }
+}
+
+function processCSVToSheet2(csvContent) {
+    const lines = csvContent.split('\n').map(line => line.trim()).filter(line => line);
+    let sheet2 = {
+        title: "",
+        company: "",
+        tech: "",
+        location_id: "",
+        enclosure_id: "",
+        enclosure_type: "",
+        date: "",
+        road_name: "",
+        lat_long: "",
+        notes: "",
+        tableCount: 0,
+        table: []
+    };
+
+    function parseSecondLine(line) {
+        const parts = line.split(',').map(part => part.trim());
+        sheet2 = {
+            ...sheet2,
+            title: parts[0] || "",
+            company: parts[1] || "",
+            tech: parts[2] || "",
+            location_id: parts[3] || "",
+            enclosure_id: parts[4] || "",
+            enclosure_type: parts[5] || "",
+            date: parts[6] || "",
+            road_name: parts[7] || "",
+            lat_long: `${parts[8] || ""}, ${parts[9] || ""}`,
+            notes: parts[10] || ""
+        };
+    }
+
+    function initializeCurrentTable(parts, table_id) {
+        const table = {
+            id: table_id,
+            cable_id: parseInt(parts[0]?.trim(), 10) || 0,
+            cable_color_id: parts[1]?.trim() || "",
+            total_fiber_count: parts[2]?.trim() || "",
+            cable_footage: parts[3]?.trim() || "",
+            cable_type: parts[4]?.trim() || "",
+            direction: parts[5]?.trim() || "",
+            use: parts[6]?.trim() || "",
+            notes: parts[7]?.trim() || "",
+            connection: [] // Ensure this is initialized as an empty array
+        };
+        console.log("Initialized table.connection is empty:", Array.isArray(table.connection) && table.connection.length === 0);
+        return table;
+    }
+
+    function parseConnection(line) {
+        const parts = line.split(',').map(part => part.trim());
+        return {
+            fiber_id: parts[0] || 0,
+            buffer_tube_id: parts[1] || "",
+            notes: parts[2] || "",
+            connection: parts[3] || ""
+        };
+    }
+
+    let currentTable = null;
+    let nextSectionInfo = false;
+    let table_id = 0;
+    let connectionAdd = 0;
+
+    lines.forEach((line, index) => {
+        if (index === 1) {
+            // Parse the second line for sheet2 metadata
+            parseSecondLine(line);
+        } else if (line.startsWith('Cable ID,')) {
+            // Start of a new cable section
+            if (currentTable) {
+                // Save the previous table before starting a new one
+                sheet2.table.push(currentTable);
+                currentTable = null;
+            }
+            nextSectionInfo = true;
+        } else if (nextSectionInfo) {
+            // Initialize a new table for the cable section
+            nextSectionInfo = false;
+            const parts = line.split(',');
+            currentTable = initializeCurrentTable(parts, table_id++);
+        } else if (line.startsWith('F #,')) {
+            // Start of a connection section
+            connectionAdd = 1;
+        } else if (connectionAdd > 0) {
+            if (!line.startsWith('Cable ID,')) {
+                // Add connection details to the current table
+                const connectionSection = parseConnection(line);
+                currentTable.connection.push(connectionSection);
+            } else {
+                // End of the connection section
+                connectionAdd = 0;
+                if (currentTable) {
+                    sheet2.tableCount ++;
+                    sheet2.table.push(currentTable);
+                    currentTable = null;
+                }
+            }
+        }
+    });
+
+    // Push the last table if it exists
+    if (currentTable) {
+        sheet2.tableCount ++;
+        sheet2.table.push(currentTable);
+    }
+
+    showCable(sheet2);
+
+    // Merge sheet2 into sheet, ensuring all properties from the default sheet are present
+    sheet = { ...sheet, ...sheet2 };
+    Object.keys(sheet).forEach(key => {
+        if (sheet[key] === undefined) {
+            console.log("Missing property:", key);
+            sheet[key] = ""; // Initialize missing properties with default values
+        }
+    });
+    console.log("Sheet1", sheet);
+    return sheet2;
+}

@@ -66,7 +66,9 @@ function updateSheet() {
                     let tbody = table.querySelector("tbody");
                     if (tbody) {
                         let rows = tbody.querySelectorAll("tr");
+                        sheet.table[i].connection = sheet.table[i].connection || []; // Ensure connection array is initialized
                         rows.forEach((row, index) => {
+                            sheet.table[i].connection[index] = sheet.table[i].connection[index] || {}; // Ensure each connection object is initialized
                             sheet.table[i].connection[index].connection = row.querySelector('td:last-child').textContent.trim();
                             sheet.table[i].connection[index].notes = row.querySelector('input').value;
                         });
@@ -96,7 +98,7 @@ async function saveSheet() {
     const filePath = file_path + `${year}_${month}_${day}_${hour}_${minute}_${second}_${sheet.title}.json`;
     updateSheet();
     saveFile(filePath, sheet);
-
+    console.log("Saved file", sheet);
     try {
         const id = localStorage.getItem("projectId");
         const token = localStorage.getItem("token");
@@ -146,28 +148,20 @@ document.getElementById("exportButton").addEventListener("click", function() {
 
     dataObjects = sheet.table;
     let csvContent = '';
-    csvContent += `Title, ${sheet.title}\n`
-    csvContent += `Company, ${sheet.company}, , Tech, ${sheet.tech}, , Location ID, ${sheet.location_id}\n`;
-    csvContent += `Date, ${sheet.date}, , Enclosure ID, ${sheet.enclosure_id}, , Enclosure Type, ${sheet.enclosure_type}\n`;
-    csvContent += `Road Name, ${sheet.road_name}, , Lat/Long, ${sheet.lat_long}\n`;
-    csvContent += `Notes, ${sheet.notes}\n\n`;
+    csvContent += `Title,Company,Tech,Location ID,Enclosure ID,Enclosure Type,Date,Road Name,Lat,Long,Notes\n`
+    csvContent += `${sheet.title}, ${sheet.company}, ${sheet.tech}, ${sheet.location_id}, ${sheet.enclosure_id}, ${sheet.enclosure_type}, ${sheet.date}, ${sheet.road_name}, ${sheet.lat_long}, ${sheet.notes}\n\n`;
     dataObjects.forEach((data, index) => {
         csvContent += `\n`;
-        csvContent += `Cable ID, ${data.cable_id}, , Cable Color ID, ${data.cable_color_id}, , Total Fiber Count, ${data.total_fiber_count}\n`;
-        csvContent += `Cable Footage, ${data.cable_footage}, , Cable Type, ${data.cable_type}\n`;
-        csvContent += `Direction, ${data.direction}, , Use, ${data.use}\n`;
-        csvContent += `Notes, ${data.notes}\n\n`;
-        csvContent += `F #, BT #, Notes, Connection\n`;
+        csvContent += `Cable ID,Cable Color ID,Total Fiber Count,Cable Footage,Cable Type,Direction,Use,Notes\n`;
+        csvContent += `${data.cable_id}, ${data.cable_color_id}, ${data.total_fiber_count}, ${data.cable_footage}, ${data.cable_type}, ${data.direction}, ${data.use}, ${data.notes}\n`;
+        csvContent += `\nF #, BT #, Notes, Connection\n`;
         csvContent += convertToCSV(data.connection) + '\n'; // Convert table data to CSV and add a blank line between tables
     });
-
-    // Create a Blob from the CSV data
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-
     // Create a link element to trigger the download
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'table.csv'; 
+    link.download = `${sheet.title}_${sheet.date}.csv`; 
     link.click();
 });
 
